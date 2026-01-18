@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<title>Progression</title>
+<style>
+body {
+  font-family: system-ui;
+  background: #0f172a;
+  color: white;
+  padding: 20px;
+}
+.bar {
+  background: #1e293b;
+  border-radius: 20px;
+  overflow: hidden;
+  margin: 10px 0 20px;
+}
+.fill {
+  height: 20px;
+  background: linear-gradient(90deg,#38bdf8,#22c55e);
+  width: 0%;
+  transition: width 0.5s;
+}
+.item {
+  display: flex;
+  justify-content: space-between;
+  margin: 6px 0;
+}
+</style>
+</head>
+
+<body>
+<h2>Progression générale</h2>
+<div class="bar"><div class="fill" id="globalBar"></div></div>
+<h3 id="globalText">0%</h3>
+
+<h2>Détails</h2>
+<div id="details"></div>
+
+<script>
+const URL = "https://script.google.com/macros/s/AKfycbx-UTYO7SudKRVHLj97UbKfLJIUP0rwCKLBfkeaQztXaQD_xP5MgDPBPvV7idm5qQk/exec";
+
+async function load() {
+  const r = await fetch(URL);
+  const data = await r.json();
+
+  document.getElementById("globalBar").style.width = data.global + "%";
+  document.getElementById("globalText").innerText = data.global + "%";
+
+  const d = document.getElementById("details");
+  d.innerHTML = "";
+  data.details.forEach(i=>{
+    d.innerHTML += `<div class="item"><span>${i.name}</span><span>${i.progress}%</span></div>`;
+  });
+}
+
+load();
+setInterval(load, 30000);
+</script>
+</body>
+</html>
