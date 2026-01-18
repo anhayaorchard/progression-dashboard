@@ -1,6 +1,6 @@
 {
-  "name": "Arraunean",
-  "short_name": "Arraunean",
+  "name": "Arraunean !",
+  "short_name": "Arraunean !",
   "start_url": ".",
   "display": "standalone",
   "background_color": "#0f172a",
@@ -18,3 +18,4 @@
     }
   ]
 }
+
