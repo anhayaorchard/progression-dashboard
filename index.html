@@ -2,61 +2,110 @@
 <html lang="fr">
 <head>
 <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Progression</title>
+
 <style>
 body {
+  margin: 0;
   font-family: system-ui;
   background: #0f172a;
   color: white;
-  padding: 20px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
 }
-.bar {
-  background: #1e293b;
-  border-radius: 20px;
-  overflow: hidden;
-  margin: 10px 0 20px;
+
+.widget {
+  width: 220px;
+  text-align: center;
+  cursor: pointer;
 }
-.fill {
-  height: 20px;
-  background: linear-gradient(90deg,#38bdf8,#22c55e);
-  width: 0%;
-  transition: width 0.5s;
+
+svg {
+  transform: rotate(-90deg);
 }
+
+circle {
+  fill: none;
+  stroke-width: 10;
+}
+
+.bg {
+  stroke: #1e293b;
+}
+
+.progress {
+  stroke: #38bdf8;
+  stroke-linecap: round;
+  stroke-dasharray: 440;
+  stroke-dashoffset: 440;
+  transition: stroke-dashoffset 0.8s ease;
+}
+
+.percent {
+  font-size: 28px;
+  margin-top: -140px;
+}
+
+.details {
+  margin-top: 15px;
+  font-size: 14px;
+  display: none;
+}
+
 .item {
   display: flex;
   justify-content: space-between;
-  margin: 6px 0;
 }
 </style>
 </head>
 
 <body>
-<h2>Progression générale</h2>
-<div class="bar"><div class="fill" id="globalBar"></div></div>
-<h3 id="globalText">0%</h3>
 
-<h2>Détails</h2>
-<div id="details"></div>
+<div class="widget" onclick="toggleDetails()">
+  <svg width="160" height="160">
+    <circle class="bg" cx="80" cy="80" r="70"/>
+    <circle class="progress" cx="80" cy="80" r="70" id="circle"/>
+  </svg>
+
+  <div class="percent" id="percent">0%</div>
+
+  <div class="details" id="details"></div>
+</div>
 
 <script>
 const URL = "https://script.google.com/macros/s/AKfycbx-UTYO7SudKRVHLj97UbKfLJIUP0rwCKLBfkeaQztXaQD_xP5MgDPBPvV7idm5qQk/exec";
+const CIRC = 440;
+let detailsVisible = false;
 
 async function load() {
   const r = await fetch(URL);
   const data = await r.json();
 
-  document.getElementById("globalBar").style.width = data.global + "%";
-  document.getElementById("globalText").innerText = data.global + "%";
+  const p = data.global;
+  document.getElementById("percent").innerText = p + "%";
+
+  const offset = CIRC - (p / 100) * CIRC;
+  document.getElementById("circle").style.strokeDashoffset = offset;
 
   const d = document.getElementById("details");
   d.innerHTML = "";
-  data.details.forEach(i=>{
+  data.details.forEach(i => {
     d.innerHTML += `<div class="item"><span>${i.name}</span><span>${i.progress}%</span></div>`;
   });
+}
+
+function toggleDetails() {
+  detailsVisible = !detailsVisible;
+  document.getElementById("details").style.display =
+    detailsVisible ? "block" : "none";
 }
 
 load();
 setInterval(load, 30000);
 </script>
+
 </body>
 </html>
