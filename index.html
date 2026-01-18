@@ -2,109 +2,208 @@
 <html lang="fr">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Progression</title>
+<title>Arraunean</title>
 
 <style>
-body {
-  margin: 0;
-  font-family: system-ui;
-  background: #0f172a;
-  color: white;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  height: 100vh;
+    body {
+        margin: 0;
+        background: #0f172a;
+        color: white;
+        font-family: Satoshi, Arial, sans-serif;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+    }
+
+    .widget {
+        width: 260px;
+        text-align: center;
+    }
+
+    /* Titre mieux équilibré visuellement */
+    h1 {
+        margin: 0 0 12px 0;
+        font-size: 30px;
+        font-weight: 600;
+        letter-spacing: 0.5px;
+    }
+
+    .circle {
+        width: 180px;
+        height: 180px;
+        border-radius: 50%;
+        background: #1e293b;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        cursor: pointer;
+        margin: auto;
+        position: relative;
+    }
+
+    /* Anneau PLUS FIN */
+    .circle::after {
+        content: "";
+        position: absolute;
+        width: 155px;   /* trou plus grand */
+        height: 155px;
+        background: #0f172a;
+        border-radius: 50%;
+    }
+
+    /* Conteneur du pourcentage */
+    .percent {
+        z-index: 1;
+        display: flex;
+        align-items: flex-start;
+        justify-content: center;
+        transform: translateX(2px); /* compense le % */
+    }
+
+    .percent .value {
+        font-size: 50px;
+        font-weight: bold;
+        line-height: 1;
+    }
+
+    .percent .symbol {
+        font-size: 18px;
+        margin-top: 4px;
+        margin-left: 2px;
+        opacity: 0.8;
+    }
+
+    .details {
+        margin-top: 16px;
+        display: none;
+        text-align: left;
+    }
+
+    .task {
+        margin-bottom: 12px;
+    }
+
+    .task-name {
+        font-size: 14px;
+        margin-bottom: 4px;
+    }
+
+    .bar {
+        background: #1e293b;
+        border-radius: 6px;
+        overflow: hidden;
+        height: 8px;
+    }
+
+    .bar-fill {
+        height: 100%;
+        width: 0%;
+        transition: width 0.8s ease;
+    }
+
+@keyframes pulse {
+    0%   { transform: scale(1); box-shadow: 0 0 0 rgba(34,197,94,0); }
+    50%  { transform: scale(1.04); box-shadow: 0 0 18px rgba(34,197,94,0.4); }
+    100% { transform: scale(1); box-shadow: 0 0 0 rgba(34,197,94,0); }
 }
 
-.widget {
-  width: 220px;
-  text-align: center;
-  cursor: pointer;
+.pulse {
+    animation: pulse 1.2s ease-in-out;
 }
 
-svg {
-  transform: rotate(-90deg);
-}
-
-circle {
-  fill: none;
-  stroke-width: 10;
-}
-
-.bg {
-  stroke: #1e293b;
-}
-
-.progress {
-  stroke: #38bdf8;
-  stroke-linecap: round;
-  stroke-dasharray: 440;
-  stroke-dashoffset: 440;
-  transition: stroke-dashoffset 0.8s ease;
-}
-
-.percent {
-  font-size: 28px;
-  margin-top: -140px;
-}
-
-.details {
-  margin-top: 15px;
-  font-size: 14px;
-  display: none;
-}
-
-.item {
-  display: flex;
-  justify-content: space-between;
-}
 </style>
+
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#0f172a">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
 </head>
 
 <body>
 
-<div class="widget" onclick="toggleDetails()">
-  <svg width="160" height="160">
-    <circle class="bg" cx="80" cy="80" r="70"/>
-    <circle class="progress" cx="80" cy="80" r="70" id="circle"/>
-  </svg>
+<div class="widget">
+    <h1>Arraunean !</h1>
 
-  <div class="percent" id="percent">0%</div>
+    <div class="circle" id="circle">
+        <div class="percent">
+            <span class="value" id="globalValue">0</span>
+            <span class="symbol">%</span>
+        </div>
+    </div>
 
-  <div class="details" id="details"></div>
+    <div class="details" id="details"></div>
 </div>
 
 <script>
 const URL = "https://script.google.com/macros/s/AKfycbx-UTYO7SudKRVHLj97UbKfLJIUP0rwCKLBfkeaQztXaQD_xP5MgDPBPvV7idm5qQk/exec";
-const CIRC = 440;
-let detailsVisible = false;
 
-async function load() {
-  const r = await fetch(URL);
-  const data = await r.json();
+const circle = document.getElementById("circle");
+const globalValue = document.getElementById("globalValue");
+const details = document.getElementById("details");
 
-  const p = data.global;
-  document.getElementById("percent").innerText = p + "%";
+circle.addEventListener("click", () => {
+    details.style.display = details.style.display === "none" ? "block" : "none";
+});
 
-  const offset = CIRC - (p / 100) * CIRC;
-  document.getElementById("circle").style.strokeDashoffset = offset;
-
-  const d = document.getElementById("details");
-  d.innerHTML = "";
-  data.details.forEach(i => {
-    d.innerHTML += `<div class="item"><span>${i.name}</span><span>${i.progress}%</span></div>`;
-  });
+// Rouge → Vert
+function colorFromPercent(p) {
+    const hue = Math.round(p * 1.2); // 0 → 120
+    return `hsl(${hue}, 80%, 45%)`;
 }
 
-function toggleDetails() {
-  detailsVisible = !detailsVisible;
-  document.getElementById("details").style.display =
-    detailsVisible ? "block" : "none";
+// Animation progressive
+function animateCircle(target) {
+    let current = 0;
+
+    function step() {
+        current++;
+        const color = colorFromPercent(current);
+
+        circle.style.background =
+            `conic-gradient(${color} ${current * 3.6}deg, #1e293b 0deg)`;
+
+        globalValue.textContent = current;
+
+        if (current < target) requestAnimationFrame(step);
+    }
+    step();
 }
 
-load();
-setInterval(load, 30000);
+fetch(URL)
+.then(res => res.json())
+.then(data => {
+    const global = Math.round(data.global);
+    animateCircle(global);
+
+    data.details.forEach(task => {
+        const p = Math.round(task.progress);
+        const color = colorFromPercent(p);
+
+        const div = document.createElement("div");
+        div.className = "task";
+
+        div.innerHTML = `
+            <div class="task-name">${task.name} – ${p}%</div>
+            <div class="bar">
+                <div class="bar-fill" style="width:${p}%; background:${color};"></div>
+            </div>
+        `;
+
+        details.appendChild(div);
+    });
+})
+.catch(err => {
+    globalValue.textContent = "–";
+    console.error(err);
+});
+
+// Pulsation toutes les 20 secondes
+setInterval(() => {
+    circle.classList.add("pulse");
+    setTimeout(() => circle.classList.remove("pulse"), 1200);
+}, 20000);
+
 </script>
 
 </body>
