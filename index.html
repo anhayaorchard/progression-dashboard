@@ -233,6 +233,50 @@ fetch(URL)
     globalValue.textContent = "–";
     console.error(err);
 });
+
+   function updateData() {
+    fetch(URL)
+    .then(res => res.json())
+    .then(data => {
+        const global = Math.round(data.global);
+
+        // Met à jour le cercle (sans refaire l'animation complète si tu veux)
+        const color = colorFromPercent(global);
+        circle.style.background = `conic-gradient(${color} ${global * 3.6}deg, #1e293b 0deg)`;
+        globalValue.textContent = global;
+
+        // Supprime les anciens détails
+        details.innerHTML = '';
+
+        // Ajoute les barres de détail
+        data.details.forEach(task => {
+            const p = Math.round(task.progress);
+            const color = colorFromPercent(p);
+
+            const div = document.createElement("div");
+            div.className = "task";
+
+            div.innerHTML = `
+                <div class="task-name">${task.name} – ${p}%</div>
+                <div class="bar">
+                    <div class="bar-fill" style="width:${p}%; background:${color};"></div>
+                </div>
+            `;
+            details.appendChild(div);
+        });
+    })
+    .catch(err => {
+        console.error(err);
+        globalValue.textContent = "–";
+    });
+}
+
+// Appel initial
+updateData();
+
+// Rafraîchissement toutes les 30 secondes
+setInterval(updateData, 30000);
+   
 </script>
 
 </body>
