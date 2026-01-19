@@ -35,7 +35,7 @@ body {
     margin: 0;
     background: #0f172a;
     color: white;
-    font-family: "Satoshi", system-ui, Arial sans-serif;
+    font-family: "Satoshi", system-ui, Arial, sans-serif;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -77,8 +77,8 @@ h1 {
 .circle::after {
     content: "";
     position: absolute;
-    width: 155px;
-    height: 155px;
+    width: 165px;
+    height: 165px;
     background: #0f172a;
     border-radius: 50%;
 }
@@ -171,84 +171,47 @@ const circle = document.getElementById("circle");
 const globalValue = document.getElementById("globalValue");
 const details = document.getElementById("details");
 
-/* Toggle détails */
 circle.addEventListener("click", () => {
     details.style.display = details.style.display === "none" ? "block" : "none";
 });
 
-/* Couleur rouge → vert */
 function colorFromPercent(p) {
     const hue = Math.round(p * 1.2); // 0 → 120
     return `hsl(${hue}, 80%, 45%)`;
 }
 
-/* Animation progressive */
-function animateCircle(target) {
-    let current = 0;
+let previousGlobal = 0;
+
+// Animation simple pour cercle et barres
+function animateToValue(current, target, callback) {
+    let value = current;
     function step() {
-        current++;
-        const color = colorFromPercent(current);
-
-        circle.style.background =
-            `conic-gradient(${color} ${current * 3.6}deg, #1e293b 0deg)`;
-
-        globalValue.textContent = current;
-
-        if (current < target) requestAnimationFrame(step);
+        if (value === target) return;
+        value += (target > value ? 1 : -1);
+        callback(value);
+        requestAnimationFrame(step);
     }
     step();
 }
 
-/* Pulsation toutes les 20s */
-setInterval(() => {
-    circle.classList.add("pulse");
-    setTimeout(() => circle.classList.remove("pulse"), 1200);
-}, 20000);
-
-/* Chargement des données */
-fetch(URL)
-.then(res => res.json())
-.then(data => {
-    const global = Math.round(data.global);
-    animateCircle(global);
-
-    data.details.forEach(task => {
-        const p = Math.round(task.progress);
-        const color = colorFromPercent(p);
-
-        const div = document.createElement("div");
-        div.className = "task";
-
-        div.innerHTML = `
-            <div class="task-name">${task.name} – ${p}%</div>
-            <div class="bar">
-                <div class="bar-fill" style="width:${p}%; background:${color};"></div>
-            </div>
-        `;
-
-        details.appendChild(div);
-    });
-})
-.catch(err => {
-    globalValue.textContent = "–";
-    console.error(err);
-});
-
-   function updateData() {
-    fetch(URL)
+function updateData() {
+    fetch(URL + "?t=" + new Date().getTime())
     .then(res => res.json())
     .then(data => {
         const global = Math.round(data.global);
 
-        // Met à jour le cercle (sans refaire l'animation complète si tu veux)
-        const color = colorFromPercent(global);
-        circle.style.background = `conic-gradient(${color} ${global * 3.6}deg, #1e293b 0deg)`;
-        globalValue.textContent = global;
+        // Cercle global animé seulement si changement
+        if (global !== previousGlobal) {
+            animateToValue(previousGlobal, global, (val) => {
+                const color = colorFromPercent(val);
+                circle.style.background = `conic-gradient(${color} ${val * 3.6}deg, #1e293b 0deg)`;
+                globalValue.textContent = val;
+            });
+            previousGlobal = global;
+        }
 
-        // Supprime les anciens détails
+        // Détails
         details.innerHTML = '';
-
-        // Ajoute les barres de détail
         data.details.forEach(task => {
             const p = Math.round(task.progress);
             const color = colorFromPercent(p);
@@ -257,26 +220,37 @@ fetch(URL)
             div.className = "task";
 
             div.innerHTML = `
-                <div class="task-name">${task.name} – ${p}%</div>
+                <div class="task-name">${task.name} – <span class="task-value">${p}</span>%</div>
                 <div class="bar">
-                    <div class="bar-fill" style="width:${p}%; background:${color};"></div>
+                    <div class="bar-fill" style="width:0%; background:${color};"></div>
                 </div>
             `;
             details.appendChild(div);
+
+            // Animation barre
+            const barFill = div.querySelector(".bar-fill");
+            animateToValue(0, p, (val) => {
+                barFill.style.width = val + "%";
+                div.querySelector(".task-value").textContent = val;
+            });
         });
     })
     .catch(err => {
-        console.error(err);
         globalValue.textContent = "–";
+        console.error(err);
     });
 }
 
-// Appel initial
+// Appel initial + rafraîchissement toutes les 30s
 updateData();
-
-// Rafraîchissement toutes les 30 secondes
 setInterval(updateData, 30000);
-   
+
+// Pulsation toutes les 20 secondes
+setInterval(() => {
+    circle.classList.add("pulse");
+    setTimeout(() => circle.classList.remove("pulse"), 1200);
+}, 20000);
+
 </script>
 
 </body>
