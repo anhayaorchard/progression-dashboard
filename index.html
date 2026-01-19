@@ -4,120 +4,149 @@
 <meta charset="UTF-8">
 <title>Arraunean</title>
 
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#0f172a">
+<link rel="manifest" href="manifest.json">
+
 <style>
-    body {
-        margin: 0;
-        background: #0f172a;
-        color: white;
-        font-family: Satoshi, Arial, sans-serif;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        height: 100vh;
-    }
+/* =======================
+   POLICE SATOSHI
+   ======================= */
+@font-face {
+    font-family: "Satoshi";
+    src: url("fonts/Satoshi-Regular.woff2") format("woff2");
+    font-weight: 400;
+}
+@font-face {
+    font-family: "Satoshi";
+    src: url("fonts/Satoshi-Medium.woff2") format("woff2");
+    font-weight: 500;
+}
+@font-face {
+    font-family: "Satoshi";
+    src: url("fonts/Satoshi-Bold.woff2") format("woff2");
+    font-weight: 700;
+}
 
-    .widget {
-        width: 260px;
-        text-align: center;
-    }
+/* =======================
+   BASE
+   ======================= */
+body {
+    margin: 0;
+    background: #0f172a;
+    color: white;
+    font-family: "Satoshi", system-ui, Arial sans-serif;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+}
 
-    /* Titre mieux équilibré visuellement */
-    h1 {
-        margin: 0 0 12px 0;
-        font-size: 30px;
-        font-weight: 600;
-        letter-spacing: 0.5px;
-    }
+.widget {
+    width: 260px;
+    text-align: center;
+}
 
-    .circle {
-        width: 180px;
-        height: 180px;
-        border-radius: 50%;
-        background: #1e293b;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        cursor: pointer;
-        margin: auto;
-        position: relative;
-    }
+/* =======================
+   TITRE
+   ======================= */
+h1 {
+    margin: 0 0 12px 0;
+    font-size: 30px;
+    font-weight: 600;
+    letter-spacing: 0.6px;
+}
 
-    /* Anneau PLUS FIN */
-    .circle::after {
-        content: "";
-        position: absolute;
-        width: 155px;   /* trou plus grand */
-        height: 155px;
-        background: #0f172a;
-        border-radius: 50%;
-    }
+/* =======================
+   CERCLE DE PROGRESSION
+   ======================= */
+.circle {
+    width: 180px;
+    height: 180px;
+    border-radius: 50%;
+    background: #1e293b;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: auto;
+    cursor: pointer;
+    position: relative;
+}
 
-    /* Conteneur du pourcentage */
-    .percent {
-        z-index: 1;
-        display: flex;
-        align-items: flex-start;
-        justify-content: center;
-        transform: translateX(2px); /* compense le % */
-    }
+/* Anneau fin */
+.circle::after {
+    content: "";
+    position: absolute;
+    width: 155px;
+    height: 155px;
+    background: #0f172a;
+    border-radius: 50%;
+}
 
-    .percent .value {
-        font-size: 50px;
-        font-weight: bold;
-        line-height: 1;
-    }
+/* Pourcentage */
+.percent {
+    position: relative;
+    z-index: 1;
+}
 
-    .percent .symbol {
-        font-size: 18px;
-        margin-top: 4px;
-        margin-left: 2px;
-        opacity: 0.8;
-    }
+.value {
+    font-size: 60px;
+    font-weight: 700;
+    line-height: 1;
+}
 
-    .details {
-        margin-top: 16px;
-        display: none;
-        text-align: left;
-    }
+.symbol {
+    position: absolute;
+    font-size: 16px;
+    top: 3px;
+    right: -16px;
+    opacity: 0.75;
+}
 
-    .task {
-        margin-bottom: 12px;
-    }
+/* =======================
+   DETAILS
+   ======================= */
+.details {
+    margin-top: 16px;
+    display: none;
+    text-align: left;
+}
 
-    .task-name {
-        font-size: 14px;
-        margin-bottom: 4px;
-    }
+.task {
+    margin-bottom: 12px;
+}
 
-    .bar {
-        background: #1e293b;
-        border-radius: 6px;
-        overflow: hidden;
-        height: 8px;
-    }
+.task-name {
+    font-size: 14px;
+    margin-bottom: 4px;
+}
 
-    .bar-fill {
-        height: 100%;
-        width: 0%;
-        transition: width 0.8s ease;
-    }
+.bar {
+    background: #1e293b;
+    border-radius: 6px;
+    overflow: hidden;
+    height: 8px;
+}
 
+.bar-fill {
+    height: 100%;
+    width: 0%;
+    transition: width 0.8s ease;
+}
+
+/* =======================
+   PULSATION
+   ======================= */
 @keyframes pulse {
-    0%   { transform: scale(1); box-shadow: 0 0 0 rgba(34,197,94,0); }
-    50%  { transform: scale(1.04); box-shadow: 0 0 18px rgba(34,197,94,0.4); }
-    100% { transform: scale(1); box-shadow: 0 0 0 rgba(34,197,94,0); }
+    0%   { transform: scale(1); box-shadow: 0 0 0 rgba(0,0,0,0); }
+    50%  { transform: scale(1.04); box-shadow: 0 0 18px rgba(34,197,94,0.35); }
+    100% { transform: scale(1); box-shadow: 0 0 0 rgba(0,0,0,0); }
 }
 
 .pulse {
     animation: pulse 1.2s ease-in-out;
 }
-
 </style>
-
-<link rel="manifest" href="manifest.json">
-<meta name="theme-color" content="#0f172a">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-
 </head>
 
 <body>
@@ -142,20 +171,20 @@ const circle = document.getElementById("circle");
 const globalValue = document.getElementById("globalValue");
 const details = document.getElementById("details");
 
+/* Toggle détails */
 circle.addEventListener("click", () => {
     details.style.display = details.style.display === "none" ? "block" : "none";
 });
 
-// Rouge → Vert
+/* Couleur rouge → vert */
 function colorFromPercent(p) {
     const hue = Math.round(p * 1.2); // 0 → 120
     return `hsl(${hue}, 80%, 45%)`;
 }
 
-// Animation progressive
+/* Animation progressive */
 function animateCircle(target) {
     let current = 0;
-
     function step() {
         current++;
         const color = colorFromPercent(current);
@@ -170,6 +199,13 @@ function animateCircle(target) {
     step();
 }
 
+/* Pulsation toutes les 20s */
+setInterval(() => {
+    circle.classList.add("pulse");
+    setTimeout(() => circle.classList.remove("pulse"), 1200);
+}, 20000);
+
+/* Chargement des données */
 fetch(URL)
 .then(res => res.json())
 .then(data => {
@@ -197,13 +233,6 @@ fetch(URL)
     globalValue.textContent = "–";
     console.error(err);
 });
-
-// Pulsation toutes les 20 secondes
-setInterval(() => {
-    circle.classList.add("pulse");
-    setTimeout(() => circle.classList.remove("pulse"), 1200);
-}, 20000);
-
 </script>
 
 </body>
