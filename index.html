@@ -2,255 +2,344 @@
 <html lang="fr">
 <head>
 <meta charset="UTF-8">
-<title>Arraunean</title>
-
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="theme-color" content="#0f172a">
-<link rel="manifest" href="manifest.json">
+<title>Arraunean !</title>
 
 <style>
-/* =======================
-   POLICE SATOSHI
-   ======================= */
+/* ===== FONTS ===== */
 @font-face {
-    font-family: "Satoshi";
-    src: url("fonts/Satoshi-Regular.woff2") format("woff2");
-    font-weight: 400;
+  font-family: "Satoshi";
+  src: url("fonts/Satoshi-Regular.woff2") format("woff2");
+  font-weight: 400;
 }
 @font-face {
-    font-family: "Satoshi";
-    src: url("fonts/Satoshi-Medium.woff2") format("woff2");
-    font-weight: 500;
-}
-@font-face {
-    font-family: "Satoshi";
-    src: url("fonts/Satoshi-Bold.woff2") format("woff2");
-    font-weight: 700;
+  font-family: "Satoshi";
+  src: url("fonts/Satoshi-Bold.woff2") format("woff2");
+  font-weight: 700;
 }
 
-/* =======================
-   BASE
-   ======================= */
 body {
-    margin: 0;
-    background: #0f172a;
-    color: white;
-    font-family: "Satoshi", system-ui, Arial, sans-serif;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 100vh;
+  margin:0;
+  background:#0f172a;
+  color:white;
+  font-family:"Satoshi", system-ui, sans-serif;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  height:100vh;
 }
 
 .widget {
-    width: 260px;
-    text-align: center;
+  width:300px;
+  text-align:center;
 }
 
-/* =======================
-   TITRE
-   ======================= */
+/* ===== HEADER ===== */
+.header {
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  margin-bottom:12px;
+}
+
+.lang button {
+  background:none;
+  border:none;
+  font-size:22px;
+  cursor:pointer;
+  opacity:0.4;
+}
+.lang button.active {
+  opacity:1;
+  filter: drop-shadow(0 0 2px white);
+}
+
+/* ===== TITLE ===== */
 h1 {
-    margin: 0 0 12px 0;
-    font-size: 30px;
-    font-weight: 600;
-    letter-spacing: 0.6px;
+  margin:0 0 12px;
+  font-size:30px;
+  font-weight:700;
+  text-align:center;
 }
 
-/* =======================
-   CERCLE DE PROGRESSION
-   ======================= */
+/* ===== TOGGLE ===== */
+.toggle {
+  position:relative;
+  width:44px;
+  height:24px;
+  border-radius:12px;
+  background:#555;
+  cursor:pointer;
+}
+.toggle::after {
+  content:"";
+  position:absolute;
+  width:20px;
+  height:20px;
+  background:white;
+  border-radius:50%;
+  top:2px;
+  left:2px;
+  transition:0.3s;
+}
+.toggle.on {
+  background:#2ec4b6;
+}
+.toggle.on::after {
+  left:22px;
+}
+
+/* ===== CIRCLE ===== */
 .circle {
-    width: 180px;
-    height: 180px;
-    border-radius: 50%;
-    background: #1e293b;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    margin: auto;
-    cursor: pointer;
-    position: relative;
+  width:180px;
+  height:180px;
+  border-radius:50%;
+  background:#1e293b;
+  margin:auto;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  position:relative;
+  cursor:pointer;
 }
-
-/* Anneau fin */
 .circle::after {
-    content: "";
-    position: absolute;
-    width: 155px;
-    height: 155px;
-    background: #0f172a;
-    border-radius: 50%;
+  content:"";
+  position:absolute;
+  width:155px;
+  height:155px;
+  background:#0f172a;
+  border-radius:50%;
 }
 
-/* Pourcentage */
 .percent {
-    position: relative;
-    z-index: 1;
+  position:relative;
+  z-index:1;
 }
 
 .value {
-    font-size: 65px;
-    font-weight: 700;
-    line-height: 1;
+  font-size:65px;
+  font-weight:700;
 }
 
 .symbol {
-    position: absolute;
-    font-size: 16px;
-    top: 3px;
-    right: -16px;
-    opacity: 0.75;
+  position:absolute;
+  font-size:16px;
+  top:18px;
+  right:-18px;
+  opacity:0.7;
 }
 
-/* =======================
-   DETAILS
-   ======================= */
+/* ===== DETAILS ===== */
 .details {
-    margin-top: 16px;
-    display: none;
-    text-align: left;
+  margin-top:16px;
+  text-align:left;
+  display:none;
 }
 
 .task {
-    margin-bottom: 12px;
+  margin-bottom:10px;
 }
 
 .task-name {
-    font-size: 14px;
-    margin-bottom: 4px;
+  font-size:14px;
+  margin-bottom:4px;
+  opacity:0;
+  transition:opacity 0.4s;
 }
 
 .bar {
-    background: #1e293b;
-    border-radius: 6px;
-    overflow: hidden;
-    height: 8px;
+  background:#1e293b;
+  height:8px;
+  border-radius:6px;
+  overflow:hidden;
 }
 
 .bar-fill {
-    height: 100%;
-    width: 0%;
-    transition: width 0.8s ease;
+  height:100%;
+  width:0%;
+  transition:width 0.8s ease, background 0.4s;
 }
 
-/* =======================
-   PULSATION
-   ======================= */
+/* ===== QUOTE ===== */
+.quote {
+  font-style:italic;
+  text-align:center;
+  color:#9aa3b2;
+  margin-top:20px;
+  min-height:40px;
+  transition:opacity 0.6s;
+}
+
+/* ===== LOGO AUDIO ===== */
+.logo {
+  width:60px;
+  margin:25px auto 0;
+  cursor:pointer;
+  display:block;
+  transition:transform 0.3s;
+}
+.logo.playing {
+  animation:pulse 1.5s infinite;
+}
+
 @keyframes pulse {
-    0%   { transform: scale(1); box-shadow: 0 0 0 rgba(0,0,0,0); }
-    50%  { transform: scale(1.04); box-shadow: 0 0 18px rgba(34,197,94,0.35); }
-    100% { transform: scale(1); box-shadow: 0 0 0 rgba(0,0,0,0); }
-}
-
-.pulse {
-    animation: pulse 1.2s ease-in-out;
+  0% {transform:scale(1);}
+  50% {transform:scale(1.06);}
+  100% {transform:scale(1);}
 }
 </style>
 </head>
 
 <body>
-
 <div class="widget">
-    <h1>Arraunean !</h1>
 
-    <div class="circle" id="circle">
-        <div class="percent">
-            <span class="value" id="globalValue">0</span>
-            <span class="symbol">%</span>
-        </div>
+  <div class="header">
+    <div class="lang">
+      <button id="fr">🇫🇷</button>
+      <button id="eu">🇪🇺</button>
     </div>
+    <div id="weightToggle" class="toggle" title="Pondérer"></div>
+  </div>
 
-    <div class="details" id="details"></div>
+  <h1>Arraunean !</h1>
+
+  <div class="circle" id="circle">
+    <div class="percent">
+      <span class="value" id="globalValue">0</span>
+      <span class="symbol">%</span>
+    </div>
+  </div>
+
+  <div class="details" id="details"></div>
+
+  <div class="quote" id="quote"></div>
+
+  <img src="assets/logo/logo.svg" class="logo" id="logo">
+
+  <audio id="audio" src="audio/extrait.mp3"></audio>
+
 </div>
 
 <script>
-const URL = "https://script.google.com/macros/s/AKfycbx-UTYO7SudKRVHLj97UbKfLJIUP0rwCKLBfkeaQztXaQD_xP5MgDPBPvV7idm5qQk/exec";
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwQzqpPLn7_EHjCo9rzmdUBhtY6IjonFgZ4IOhJONCbboDPVDcaUX8yMCKXLMN3NSam/exec";
+const INSTA_APP = "instagram://user?username=ensemblekutun";
+const INSTA_WEB = "https://www.instagram.com/ensemblekutun/";
 
-const circle = document.getElementById("circle");
-const globalValue = document.getElementById("globalValue");
-const details = document.getElementById("details");
-
-circle.addEventListener("click", () => {
-    details.style.display = details.style.display === "none" ? "block" : "none";
-});
-
-function colorFromPercent(p) {
-    const hue = Math.round(p * 1.2); // 0 → 120
-    return `hsl(${hue}, 80%, 45%)`;
-}
-
+let lang = localStorage.getItem("lang") || "fr";
+let weighted = localStorage.getItem("weighted") === "true";
+let detailsOpened = false;
 let previousGlobal = 0;
 
-// Animation simple pour cercle et barres
-function animateToValue(current, target, callback) {
-    let value = current;
-    function step() {
-        if (value === target) return;
-        value += (target > value ? 1 : -1);
-        callback(value);
-        requestAnimationFrame(step);
-    }
-    step();
-}
+const circleEl = document.getElementById("circle");
+const globalValue = document.getElementById("globalValue");
+const detailsEl = document.getElementById("details");
+const quoteEl = document.getElementById("quote");
+const weightToggle = document.getElementById("weightToggle");
+const logo = document.getElementById("logo");
+const audio = document.getElementById("audio");
 
-function updateData() {
-    fetch(URL + "?t=" + new Date().getTime())
-    .then(res => res.json())
-    .then(data => {
-        const global = Math.round(data.global);
+document.getElementById(lang).classList.add("active");
+if(weighted) weightToggle.classList.add("on");
 
-        // Cercle global animé seulement si changement
-        if (global !== previousGlobal) {
-            animateToValue(previousGlobal, global, (val) => {
-                const color = colorFromPercent(val);
-                circle.style.background = `conic-gradient(${color} ${val * 3.6}deg, #1e293b 0deg)`;
-                globalValue.textContent = val;
-            });
-            previousGlobal = global;
-        }
+/* UTILS */
+function colorFromPercent(p){ return `hsl(${p*1.2},80%,45%)`; }
+function animateNumber(from,to,cb){ let v=from; function step(){ if(v===to) return; v+=v<to?1:-1; cb(v); requestAnimationFrame(step);} step(); }
 
-        // Détails
-        details.innerHTML = '';
-        data.details.forEach(task => {
-            const p = Math.round(task.progress);
-            const color = colorFromPercent(p);
+async function updateData(){
+  const res = await fetch(`${SCRIPT_URL}?lang=${lang}&weighted=${weighted}&t=${Date.now()}`);
+  const data = await res.json();
+  const g = Math.round(data.global);
 
-            const div = document.createElement("div");
-            div.className = "task";
-
-            div.innerHTML = `
-                <div class="task-name">${task.name} – <span class="task-value">${p}</span>%</div>
-                <div class="bar">
-                    <div class="bar-fill" style="width:0%; background:${color};"></div>
-                </div>
-            `;
-            details.appendChild(div);
-
-            // Animation barre
-            const barFill = div.querySelector(".bar-fill");
-            animateToValue(0, p, (val) => {
-                barFill.style.width = val + "%";
-                div.querySelector(".task-value").textContent = val;
-            });
-        });
-    })
-    .catch(err => {
-        globalValue.textContent = "–";
-        console.error(err);
+  if(g!==previousGlobal){
+    animateNumber(previousGlobal,g,v=>{
+      const c=colorFromPercent(v);
+      circleEl.style.background = `conic-gradient(${c} ${v*3.6}deg, #1e293b 0deg)`;
+      globalValue.textContent = v;
     });
+    previousGlobal = g;
+  }
+
+  if(detailsOpened){
+    detailsEl.innerHTML="";
+    data.details.forEach(d=>{
+      const t=document.createElement("div");
+      t.className="task";
+      t.innerHTML=`
+        <div class="task-name">${d.name} – ${Math.round(d.progress)}%</div>
+        <div class="bar">
+          <div class="bar-fill" style="width:${Math.round(d.progress)}%;background:${colorFromPercent(d.progress)}"></div>
+        </div>`;
+      detailsEl.appendChild(t);
+      requestAnimationFrame(()=>t.querySelector(".task-name").style.opacity=1);
+    });
+  }
 }
 
-// Appel initial + rafraîchissement toutes les 30s
+/* TOGGLE DETAILS */
+circleEl.onclick = ()=>{ 
+  detailsOpened=!detailsOpened;
+  detailsEl.style.display=detailsOpened?"block":"none";
+  if(detailsOpened) updateData();
+};
+
+/* TOGGLE PONDERATION */
+weightToggle.onclick=()=>{
+  weighted=!weighted;
+  weightToggle.classList.toggle("on");
+  weightToggle.title=lang==="fr"?"Pondérer":"Orekatu";
+  localStorage.setItem("weighted",weighted);
+  updateData();
+};
+
+/* LANGUE */
+["fr","eu"].forEach(l=>{
+  document.getElementById(l).onclick=()=>{
+    if(l===lang) return;
+    detailsEl.querySelectorAll(".task-name").forEach(e=>e.style.opacity=0);
+    setTimeout(()=>{
+      lang=l;
+      localStorage.setItem("lang",lang);
+      document.querySelectorAll(".lang button").forEach(b=>b.classList.remove("active"));
+      document.getElementById(l).classList.add("active");
+      weightToggle.title=lang==="fr"?"Pondérer":"Orekatu";
+      updateData();
+    },300);
+  };
+});
+
+/* AUDIO + LOGO */
+let tapCount=0;
+logo.onclick=()=>{
+  tapCount++;
+  if(tapCount===1){
+    if(audio.paused) audio.play();
+    else audio.pause();
+    logo.classList.toggle("playing",!audio.paused);
+  }
+  setTimeout(()=>tapCount=0,400);
+};
+logo.ondblclick = ()=>window.open(INSTA_WEB,"_blank");
+let pressTimer;
+logo.ontouchstart=()=>pressTimer=setTimeout(()=>window.open(INSTA_WEB,"_blank"),500);
+logo.ontouchend=()=>clearTimeout(pressTimer);
+
+/* CITATIONS */
+fetch("data/quotes.json")
+.then(r=>r.json())
+.then(quotes=>{
+  function changeQuote(){
+    quoteEl.style.opacity=0;
+    setTimeout(()=>{
+      quoteEl.textContent=quotes[Math.floor(Math.random()*quotes.length)];
+      quoteEl.style.opacity=1;
+    },600);
+  }
+  changeQuote();
+  setInterval(changeQuote,120000);
+});
+
 updateData();
-setInterval(updateData, 30000);
-
-// Pulsation toutes les 20 secondes
-setInterval(() => {
-    circle.classList.add("pulse");
-    setTimeout(() => circle.classList.remove("pulse"), 1200);
-}, 20000);
-
+setInterval(updateData,30000);
 </script>
 
 </body>
