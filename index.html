@@ -264,6 +264,7 @@ const audio=document.getElementById("audio");
 document.getElementById(lang).classList.add("active");
 if(weighted) weightToggle.classList.add("on");
 toggleTooltip.textContent = lang==="fr"?"Pondérer":"Orekatu";
+updateGlobalPercentSymbol();
 
 async function checkAudioUpdate(){
   try{
@@ -376,7 +377,6 @@ weightToggle.onclick=()=>{
   updateData();
 };
 function updateTooltip(){toggleTooltip.textContent=lang==="fr"?"Pondérer":"Orekatu";}
-  updateGlobalPercentSymbol();
 
 let pressTimer;
 weightToggle.ontouchstart=()=>{pressTimer=setTimeout(()=>{toggleTooltip.style.opacity=1;setTimeout(()=>toggleTooltip.style.opacity=0,800);},500);};
