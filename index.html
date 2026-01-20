@@ -298,6 +298,9 @@ async function checkAudioUpdate(){
 /* UTIL */
 function colorFromPercent(p){return `hsl(${p*1.2},80%,45%)`;}
 function animateNumber(from,to,cb){let v=from;function step(){if(v===to)return;v+=v<to?1:-1;cb(v);requestAnimationFrame(step);}step();}
+function formatPercent(value){
+  return lang === "eu" ? `%${value}` : `${value}%`;
+}
 
 /* PWA & Notifications */
 if ('serviceWorker' in navigator && 'Notification' in window) {
@@ -318,7 +321,7 @@ async function updateData(){
   animateNumber(previousGlobal,g,v=>{
     const c=colorFromPercent(v);
     circleEl.style.background=`conic-gradient(${c} ${v*3.6}deg, #1e293b 0deg)`;
-    globalValue.textContent=v;
+    globalValue.textContent = v;
   });
 
   // Notifications
@@ -326,7 +329,7 @@ async function updateData(){
     navigator.serviceWorker.controller.postMessage({
       type:'NOTIFY',
       title:'Arraunean !',
-      options:{body:`Beti aintzina ! %${g}(e)tara helduz — La progression globale a avancé à ${g}%`,icon:'assets/logo/logo-192.png'}
+      options:{body:`%${g}(e)tara helduz, beti aintzina ! La progression globale a avancé à ${g}%`,icon:'assets/logo/logo-192.png'}
     });
   }
 
@@ -334,7 +337,7 @@ async function updateData(){
     navigator.serviceWorker.controller.postMessage({
       type:'NOTIFY',
       title:'Arraunean !',
-      options:{body:'Musika zati berri bat entzuteko ! — Un nouvel extrait audio est disponible !',icon:'assets/logo/logo-192.png'}
+      options:{body:'Musika zati berri bat entzuteko ! Un nouvel extrait audio est disponible !',icon:'assets/logo/logo-192.png'}
     });
     localStorage.setItem('lastAudioVersion',data.audioVersion);
   }
@@ -347,7 +350,7 @@ async function updateData(){
       const t=document.createElement("div");
       t.className="task";
       t.innerHTML=`
-        <div class="task-name">${d.name} – ${Math.round(d.progress)}%</div>
+        <div class="task-name">${d.name} – ${formatPercent(Math.round(d.progress))}</div>
         <div class="bar">
           <div class="bar-fill" style="width:${Math.round(d.progress)}%;background:${colorFromPercent(d.progress)}"></div>
         </div>`;
@@ -373,9 +376,22 @@ weightToggle.onclick=()=>{
   updateData();
 };
 function updateTooltip(){toggleTooltip.textContent=lang==="fr"?"Pondérer":"Orekatu";}
+  updateGlobalPercentSymbol();
+
 let pressTimer;
 weightToggle.ontouchstart=()=>{pressTimer=setTimeout(()=>{toggleTooltip.style.opacity=1;setTimeout(()=>toggleTooltip.style.opacity=0,800);},500);};
 weightToggle.ontouchend=()=>clearTimeout(pressTimer);
+
+function updateGlobalPercentSymbol(){
+  const symbol = document.querySelector(".symbol");
+  if(lang === "eu"){
+    symbol.style.right = "auto";
+    symbol.style.left = "-18px";
+  }else{
+    symbol.style.left = "auto";
+    symbol.style.right = "-18px";
+  }
+}
 
 /* LANGUES */
 ["fr","eu"].forEach(l=>{
@@ -388,6 +404,7 @@ weightToggle.ontouchend=()=>clearTimeout(pressTimer);
       document.querySelectorAll(".flag").forEach(f=>f.classList.remove("active"));
       document.getElementById(l).classList.add("active");
       updateTooltip();
+      updateGlobalPercentSymbol();
       updateData();
     },300);
   };
@@ -432,3 +449,4 @@ setInterval(checkAudioUpdate, 60000); // toutes les 1 min
 
 </body>
 </html>
+Voici mon script actuel, peux-tu le mettre à jour ?
