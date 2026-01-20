@@ -240,6 +240,9 @@ h1{
 </div>
 
 <script>
+const AUDIO_INFO_URL = "data/audio.json";
+let lastAudioVersion = localStorage.getItem("lastAudioVersion");
+  
 const SCRIPT_URL="https://script.google.com/macros/s/AKfycbwQzqpPLn7_EHjCo9rzmdUBhtY6IjonFgZ4IOhJONCbboDPVDcaUX8yMCKXLMN3NSam/exec";
 const INSTA_WEB="https://www.instagram.com/ensemblekutun/";
 
@@ -261,6 +264,36 @@ const audio=document.getElementById("audio");
 document.getElementById(lang).classList.add("active");
 if(weighted) weightToggle.classList.add("on");
 toggleTooltip.textContent = lang==="fr"?"Pondérer":"Orekatu";
+
+async function checkAudioUpdate(){
+  try{
+    const res = await fetch(`${AUDIO_INFO_URL}?t=${Date.now()}`);
+    const audioInfo = await res.json();
+
+    if(audioInfo.version && audioInfo.version !== lastAudioVersion){
+      // Notification
+      if(Notification.permission === "granted" && navigator.serviceWorker.controller){
+        navigator.serviceWorker.controller.postMessage({
+          type:"NOTIFY",
+          title:"Arraunean !",
+          options:{
+            body:"Un nouvel extrait sonore est disponible",
+            icon:"assets/logo/logo-192.png"
+          }
+        });
+      }
+
+      // Mise à jour locale
+      lastAudioVersion = audioInfo.version;
+      localStorage.setItem("lastAudioVersion", audioInfo.version);
+
+      // Met à jour la source audio si besoin
+      audio.src = audioInfo.file;
+    }
+  }catch(e){
+    console.log("Audio check error", e);
+  }
+}
 
 /* UTIL */
 function colorFromPercent(p){return `hsl(${p*1.2},80%,45%)`;}
@@ -293,7 +326,7 @@ async function updateData(){
     navigator.serviceWorker.controller.postMessage({
       type:'NOTIFY',
       title:'Arraunean !',
-      options:{body:`La progression globale a avancé à ${g}%`,icon:'assets/logo/logo-192.png'}
+      options:{body:`Beti aintzina ! %${g}(e)tara helduz — La progression globale a avancé à ${g}%`,icon:'assets/logo/logo-192.png'}
     });
   }
 
@@ -301,7 +334,7 @@ async function updateData(){
     navigator.serviceWorker.controller.postMessage({
       type:'NOTIFY',
       title:'Arraunean !',
-      options:{body:'Un nouvel extrait audio est disponible !',icon:'assets/logo/logo-192.png'}
+      options:{body:'Musika zati berri bat entzuteko ! — Un nouvel extrait audio est disponible !',icon:'assets/logo/logo-192.png'}
     });
     localStorage.setItem('lastAudioVersion',data.audioVersion);
   }
@@ -392,6 +425,9 @@ setInterval(()=>{
 
 updateData();
 setInterval(updateData,30000);
+
+checkAudioUpdate();
+setInterval(checkAudioUpdate, 60000); // toutes les 1 min
 </script>
 
 </body>
