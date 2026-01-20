@@ -147,12 +147,12 @@ h1{
 
 /* DETAILS */
 .details{
-  position:relative; /* correction pour ne pas superposer le cercle */
+  position:relative;
   margin-top:16px;
-  margin-left:15px;
-  width:90%;
+  width:180px; /* aligné avec le cercle */
   text-align:left;
   display:none;
+  margin:auto;
 }
 .task{
   margin-bottom:10px;
@@ -202,7 +202,7 @@ h1{
   100%{transform:scale(1);}
 }
 </style>
-  <link rel="manifest" href="manifest.json">
+<link rel="manifest" href="manifest.json">
 </head>
 
 <body>
@@ -265,6 +265,7 @@ toggleTooltip.textContent = lang==="fr"?"Pondérer":"Orekatu";
 function colorFromPercent(p){return `hsl(${p*1.2},80%,45%)`;}
 function animateNumber(from,to,cb){let v=from;function step(){if(v===to)return;v+=v<to?1:-1;cb(v);requestAnimationFrame(step);}step();}
 
+/* PWA & Notifications */
 if ('serviceWorker' in navigator && 'Notification' in window) {
   navigator.serviceWorker.register('sw.js').then(reg => console.log('SW registered'));
   
@@ -273,21 +274,38 @@ if ('serviceWorker' in navigator && 'Notification' in window) {
   }
 }
 
-  
 /* UPDATE DATA */
 async function updateData(){
   const res=await fetch(`${SCRIPT_URL}?lang=${lang}&weighted=${weighted}&t=${Date.now()}`);
   const data=await res.json();
   const g=Math.round(data.global);
 
-  if(g!==previousGlobal){
-    animateNumber(previousGlobal,g,v=>{
-      const c=colorFromPercent(v);
-      circleEl.style.background=`conic-gradient(${c} ${v*3.6}deg, #1e293b 0deg)`;
-      globalValue.textContent=v;
+  // Cercle animation
+  animateNumber(previousGlobal,g,v=>{
+    const c=colorFromPercent(v);
+    circleEl.style.background=`conic-gradient(${c} ${v*3.6}deg, #1e293b 0deg)`;
+    globalValue.textContent=v;
+  });
+
+  // Notifications
+  if(previousGlobal>0 && g>previousGlobal && Notification.permission==='granted' && navigator.serviceWorker.controller){
+    navigator.serviceWorker.controller.postMessage({
+      type:'NOTIFY',
+      title:'Arraunean !',
+      options:{body:`La progression globale a avancé à ${g}%`,icon:'assets/logo/logo-192.png'}
     });
-    previousGlobal=g;
   }
+
+  if(data.audioVersion && data.audioVersion!==localStorage.getItem('lastAudioVersion') && Notification.permission==='granted' && navigator.serviceWorker.controller){
+    navigator.serviceWorker.controller.postMessage({
+      type:'NOTIFY',
+      title:'Arraunean !',
+      options:{body:'Un nouvel extrait audio est disponible !',icon:'assets/logo/logo-192.png'}
+    });
+    localStorage.setItem('lastAudioVersion',data.audioVersion);
+  }
+
+  previousGlobal=g;
 
   if(detailsOpened){
     detailsEl.innerHTML="";
@@ -305,37 +323,6 @@ async function updateData(){
   }
 }
 
-// Notification si progression globale a augmenté
-if(previousGlobal > 0 && g > previousGlobal){
-  if(Notification.permission === 'granted' && navigator.serviceWorker.controller){
-    navigator.serviceWorker.controller.postMessage({
-      type: 'NOTIFY',
-      title: 'Arraunean !',
-      options: {
-        body: `La progression globale a avancé à ${g}%`,
-        icon: 'assets/logo/logo-192.png'
-      }
-    });
-  }
-}
-
-// Notification si nouvel extrait audio disponible
-// Assure-toi que ton JSON Apps Script renvoie un champ "audioVersion"
-if(data.audioVersion && data.audioVersion !== localStorage.getItem('lastAudioVersion')){
-  if(Notification.permission === 'granted' && navigator.serviceWorker.controller){
-    navigator.serviceWorker.controller.postMessage({
-      type: 'NOTIFY',
-      title: 'Arraunean !',
-      options: {
-        body: 'Un nouvel extrait audio est disponible !',
-        icon: 'assets/logo/logo-192.png'
-      }
-    });
-  }
-  localStorage.setItem('lastAudioVersion', data.audioVersion);
-}
-
-  
 /* DETAILS TOGGLE */
 circleEl.onclick=()=>{
   detailsOpened=!detailsOpened;
@@ -396,8 +383,11 @@ fetch("data/quotes.json").then(r=>r.json()).then(quotes=>{
   setInterval(changeQuote,120000);
 });
 
-/* Cercle animation fluide */
-setInterval(()=>{circleEl.style.background=circleEl.style.background;},20000);
+/* Cercle animation micro-fluide toutes les 20 sec */
+setInterval(()=>{
+  circleEl.style.transform="scale(1.02)";
+  setTimeout(()=>circleEl.style.transform="scale(1)",600);
+},20000);
 
 updateData();
 setInterval(updateData,30000);
