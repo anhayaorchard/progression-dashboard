@@ -30,6 +30,7 @@ body{
 .widget{
   width:300px;
   text-align:center;
+  position:relative;
 }
 
 /* HEADER LANG / TOGGLE */
@@ -40,19 +41,18 @@ body{
   margin-bottom:12px;
 }
 
-.lang button{
-  background:none;
-  border:none;
-  font-size:22px;
+.flag{
+  width:28px;
+  height:28px;
+  border-radius:50%;
   cursor:pointer;
   opacity:0.5;
-  border-radius:50%;
-  padding:4px;
+  object-fit:cover;
+  margin-right:4px;
+  transition:opacity 0.3s;
 }
-.lang button.active{
+.flag.active{
   opacity:1;
-  background: #fff;
-  color:#0f172a;
 }
 
 /* TOGGLE PONDERATION */
@@ -81,6 +81,20 @@ body{
 .toggle.on::after{
   left:22px;
 }
+.toggle-tooltip{
+  position:absolute;
+  bottom:28px;
+  left:50%;
+  transform:translateX(-50%);
+  background:rgba(0,0,0,0.7);
+  color:white;
+  font-size:12px;
+  padding:2px 6px;
+  border-radius:4px;
+  opacity:0;
+  transition:opacity 0.3s;
+  pointer-events:none;
+}
 
 /* TITLE */
 h1{
@@ -101,6 +115,7 @@ h1{
   align-items:center;
   position:relative;
   cursor:pointer;
+  transition:background 1.2s ease;
 }
 .circle::after{
   content:"";
@@ -128,7 +143,11 @@ h1{
 
 /* DETAILS */
 .details{
-  margin-top:16px;
+  position:absolute;
+  top:220px;
+  left:50%;
+  transform:translateX(-50%);
+  width:90%;
   text-align:left;
   display:none;
 }
@@ -158,7 +177,7 @@ h1{
   font-style:italic;
   text-align:center;
   color:#9aa3b2;
-  margin-top:12px;
+  margin-top:8px;
   min-height:40px;
   transition:opacity 0.6s;
 }
@@ -187,10 +206,13 @@ h1{
 
   <div class="header">
     <div class="lang">
-      <button id="fr">🇫🇷</button>
-      <button id="eu">🏴</button>
+      <img src="assets/flags/fr.svg" id="fr" class="flag">
+      <img src="assets/flags/eu.svg" id="eu" class="flag">
     </div>
-    <div id="weightToggle" class="toggle" title="Pondérer"></div>
+    <div style="position:relative;">
+      <div id="weightToggle" class="toggle"></div>
+      <div id="toggleTooltip" class="toggle-tooltip">Pondérer</div>
+    </div>
   </div>
 
   <h1>Arraunean !</h1>
@@ -213,29 +235,31 @@ h1{
 </div>
 
 <script>
-const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwQzqpPLn7_EHjCo9rzmdUBhtY6IjonFgZ4IOhJONCbboDPVDcaUX8yMCKXLMN3NSam/exec";
-const INSTA_APP = "instagram://user?username=ensemblekutun";
-const INSTA_WEB = "https://www.instagram.com/ensemblekutun/";
+const SCRIPT_URL="https://script.google.com/macros/s/AKfycbwQzqpPLn7_EHjCo9rzmdUBhtY6IjonFgZ4IOhJONCbboDPVDcaUX8yMCKXLMN3NSam/exec";
+const INSTA_WEB="https://www.instagram.com/ensemblekutun/";
 
-let lang = localStorage.getItem("lang") || "fr";
-let weighted = localStorage.getItem("weighted")==="true";
+let lang=localStorage.getItem("lang")||"fr";
+let weighted=localStorage.getItem("weighted")==="true";
 let detailsOpened=false;
 let previousGlobal=0;
+let currentQuoteIndex=-1;
 
 const circleEl=document.getElementById("circle");
 const globalValue=document.getElementById("globalValue");
 const detailsEl=document.getElementById("details");
 const quoteEl=document.getElementById("quote");
 const weightToggle=document.getElementById("weightToggle");
+const toggleTooltip=document.getElementById("toggleTooltip");
 const logo=document.getElementById("logo");
 const audio=document.getElementById("audio");
 
 document.getElementById(lang).classList.add("active");
 if(weighted) weightToggle.classList.add("on");
+toggleTooltip.textContent = lang==="fr"?"Pondérer":"Orekatu";
 
 /* UTIL */
 function colorFromPercent(p){return `hsl(${p*1.2},80%,45%)`;}
-function animateNumber(from,to,cb){let v=from;function step(){if(v===to) return; v+=v<to?1:-1; cb(v); requestAnimationFrame(step);} step();}
+function animateNumber(from,to,cb){let v=from;function step(){if(v===to)return;v+=v<to?1:-1;cb(v);requestAnimationFrame(step);}step();}
 
 /* UPDATE DATA */
 async function updateData(){
@@ -279,12 +303,13 @@ circleEl.onclick=()=>{
 weightToggle.onclick=()=>{
   weighted=!weighted;
   weightToggle.classList.toggle("on");
-  weightToggle.title=lang==="fr"?"Pondérer":"Orekatu";
+  updateTooltip();
   localStorage.setItem("weighted",weighted);
   updateData();
 };
+function updateTooltip(){toggleTooltip.textContent=lang==="fr"?"Pondérer":"Orekatu";}
 let pressTimer;
-weightToggle.ontouchstart=()=>{pressTimer=setTimeout(()=>alert(lang==="fr"?"Pondérer":"Orekatu"),500);};
+weightToggle.ontouchstart=()=>{pressTimer=setTimeout(()=>{toggleTooltip.style.opacity=1;setTimeout(()=>toggleTooltip.style.opacity=0,800);},500);};
 weightToggle.ontouchend=()=>clearTimeout(pressTimer);
 
 /* LANGUES */
@@ -295,24 +320,18 @@ weightToggle.ontouchend=()=>clearTimeout(pressTimer);
     setTimeout(()=>{
       lang=l;
       localStorage.setItem("lang",lang);
-      document.querySelectorAll(".lang button").forEach(b=>b.classList.remove("active"));
+      document.querySelectorAll(".flag").forEach(f=>f.classList.remove("active"));
       document.getElementById(l).classList.add("active");
-      weightToggle.title=lang==="fr"?"Pondérer":"Orekatu";
+      updateTooltip();
       updateData();
     },300);
   };
 });
 
 /* AUDIO / LOGO */
-let tapCount=0;
 logo.onclick=()=>{
-  tapCount++;
-  if(tapCount===1){
-    audio.currentTime=0;
-    audio.play();
-    logo.classList.add("playing");
-  }
-  setTimeout(()=>tapCount=0,400);
+  if(audio.paused){audio.currentTime=0; audio.play(); logo.classList.add("playing");}
+  else {audio.pause(); logo.classList.remove("playing");}
 };
 audio.onended=()=>logo.classList.remove("playing");
 logo.ondblclick=()=>window.open(INSTA_WEB,"_blank");
@@ -323,24 +342,22 @@ logo.ontouchend=()=>clearTimeout(pressTimerLogo);
 /* QUOTES */
 fetch("data/quotes.json").then(r=>r.json()).then(quotes=>{
   function changeQuote(){
+    let nextIndex;
+    do{nextIndex=Math.floor(Math.random()*quotes.length);}while(nextIndex===currentQuoteIndex);
+    currentQuoteIndex=nextIndex;
     quoteEl.style.opacity=0;
-    setTimeout(()=>{
-      quoteEl.textContent=quotes[Math.floor(Math.random()*quotes.length)];
-      quoteEl.style.opacity=1;
-    },600);
+    setTimeout(()=>{quoteEl.textContent=quotes[currentQuoteIndex];quoteEl.style.opacity=1;},600);
   }
   changeQuote();
   setInterval(changeQuote,120000);
 });
 
-/* Cercle micro animation toutes les 20s */
-setInterval(()=>{
-  circleEl.style.transform="scale(1.05)";
-  setTimeout(()=>circleEl.style.transform="scale(1)",400);
-},20000);
+/* Cercle animation fluide (transition) toutes les 20s */
+setInterval(()=>{circleEl.style.background=circleEl.style.background;},20000);
 
 updateData();
 setInterval(updateData,30000);
 </script>
+
 </body>
 </html>
