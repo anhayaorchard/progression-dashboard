@@ -6,7 +6,6 @@
 <title>Arraunean !</title>
 
 <style>
-/* ===== FONTS ===== */
 @font-face {
   font-family: "Satoshi";
   src: url("fonts/Satoshi-Regular.woff2") format("woff2");
@@ -18,52 +17,46 @@
   font-weight: 700;
 }
 
-body {
+body{
   margin:0;
   background:#0f172a;
   color:white;
   font-family:"Satoshi", system-ui, sans-serif;
   display:flex;
   justify-content:center;
-  align-items:center;
-  height:100vh;
+  padding:20px;
 }
 
-.widget {
+.widget{
   width:300px;
   text-align:center;
 }
 
-/* ===== HEADER ===== */
-.header {
+/* HEADER LANG / TOGGLE */
+.header{
   display:flex;
   justify-content:space-between;
   align-items:center;
   margin-bottom:12px;
 }
 
-.lang button {
+.lang button{
   background:none;
   border:none;
   font-size:22px;
   cursor:pointer;
-  opacity:0.4;
+  opacity:0.5;
+  border-radius:50%;
+  padding:4px;
 }
-.lang button.active {
+.lang button.active{
   opacity:1;
-  filter: drop-shadow(0 0 2px white);
+  background: #fff;
+  color:#0f172a;
 }
 
-/* ===== TITLE ===== */
-h1 {
-  margin:0 0 12px;
-  font-size:30px;
-  font-weight:700;
-  text-align:center;
-}
-
-/* ===== TOGGLE ===== */
-.toggle {
+/* TOGGLE PONDERATION */
+.toggle{
   position:relative;
   width:44px;
   height:24px;
@@ -71,7 +64,7 @@ h1 {
   background:#555;
   cursor:pointer;
 }
-.toggle::after {
+.toggle::after{
   content:"";
   position:absolute;
   width:20px;
@@ -82,15 +75,22 @@ h1 {
   left:2px;
   transition:0.3s;
 }
-.toggle.on {
+.toggle.on{
   background:#2ec4b6;
 }
-.toggle.on::after {
+.toggle.on::after{
   left:22px;
 }
 
-/* ===== CIRCLE ===== */
-.circle {
+/* TITLE */
+h1{
+  margin:0 0 12px;
+  font-size:30px;
+  font-weight:700;
+}
+
+/* CERCLE */
+.circle{
   width:180px;
   height:180px;
   border-radius:50%;
@@ -102,7 +102,7 @@ h1 {
   position:relative;
   cursor:pointer;
 }
-.circle::after {
+.circle::after{
   content:"";
   position:absolute;
   width:155px;
@@ -110,82 +110,74 @@ h1 {
   background:#0f172a;
   border-radius:50%;
 }
-
-.percent {
+.percent{
   position:relative;
   z-index:1;
 }
-
-.value {
+.value{
   font-size:65px;
   font-weight:700;
 }
-
-.symbol {
+.symbol{
   position:absolute;
-  font-size:16px;
-  top:18px;
+  font-size:18px;
+  top:6px;
   right:-18px;
   opacity:0.7;
 }
 
-/* ===== DETAILS ===== */
-.details {
+/* DETAILS */
+.details{
   margin-top:16px;
   text-align:left;
   display:none;
 }
-
-.task {
+.task{
   margin-bottom:10px;
 }
-
-.task-name {
+.task-name{
   font-size:14px;
   margin-bottom:4px;
   opacity:0;
   transition:opacity 0.4s;
 }
-
-.bar {
+.bar{
   background:#1e293b;
   height:8px;
   border-radius:6px;
   overflow:hidden;
 }
-
-.bar-fill {
+.bar-fill{
   height:100%;
   width:0%;
   transition:width 0.8s ease, background 0.4s;
 }
 
-/* ===== QUOTE ===== */
-.quote {
+/* QUOTES */
+.quote{
   font-style:italic;
   text-align:center;
   color:#9aa3b2;
-  margin-top:20px;
+  margin-top:12px;
   min-height:40px;
   transition:opacity 0.6s;
 }
 
-/* ===== LOGO AUDIO ===== */
-.logo {
+/* LOGO AUDIO */
+.logo{
   width:60px;
-  margin:25px auto 0;
+  margin:12px auto 0;
   cursor:pointer;
   display:block;
   transition:transform 0.3s;
 }
-.logo.playing {
+.logo.playing{
   animation:pulse 1.5s infinite;
 }
-
-@keyframes pulse {
-  0% {transform:scale(1);}
-  50% {transform:scale(1.06);}
-  100% {transform:scale(1);}
+@keyframes pulse{
+  0%{transform:scale(1);}
+  50%{transform:scale(1.06);}
+  100%{transform:scale(1);}
 }
 </style>
 </head>
@@ -196,7 +188,7 @@ h1 {
   <div class="header">
     <div class="lang">
       <button id="fr">🇫🇷</button>
-      <button id="eu">🇪🇺</button>
+      <button id="eu">🏴</button>
     </div>
     <div id="weightToggle" class="toggle" title="Pondérer"></div>
   </div>
@@ -226,37 +218,38 @@ const INSTA_APP = "instagram://user?username=ensemblekutun";
 const INSTA_WEB = "https://www.instagram.com/ensemblekutun/";
 
 let lang = localStorage.getItem("lang") || "fr";
-let weighted = localStorage.getItem("weighted") === "true";
-let detailsOpened = false;
-let previousGlobal = 0;
+let weighted = localStorage.getItem("weighted")==="true";
+let detailsOpened=false;
+let previousGlobal=0;
 
-const circleEl = document.getElementById("circle");
-const globalValue = document.getElementById("globalValue");
-const detailsEl = document.getElementById("details");
-const quoteEl = document.getElementById("quote");
-const weightToggle = document.getElementById("weightToggle");
-const logo = document.getElementById("logo");
-const audio = document.getElementById("audio");
+const circleEl=document.getElementById("circle");
+const globalValue=document.getElementById("globalValue");
+const detailsEl=document.getElementById("details");
+const quoteEl=document.getElementById("quote");
+const weightToggle=document.getElementById("weightToggle");
+const logo=document.getElementById("logo");
+const audio=document.getElementById("audio");
 
 document.getElementById(lang).classList.add("active");
 if(weighted) weightToggle.classList.add("on");
 
-/* UTILS */
-function colorFromPercent(p){ return `hsl(${p*1.2},80%,45%)`; }
-function animateNumber(from,to,cb){ let v=from; function step(){ if(v===to) return; v+=v<to?1:-1; cb(v); requestAnimationFrame(step);} step(); }
+/* UTIL */
+function colorFromPercent(p){return `hsl(${p*1.2},80%,45%)`;}
+function animateNumber(from,to,cb){let v=from;function step(){if(v===to) return; v+=v<to?1:-1; cb(v); requestAnimationFrame(step);} step();}
 
+/* UPDATE DATA */
 async function updateData(){
-  const res = await fetch(`${SCRIPT_URL}?lang=${lang}&weighted=${weighted}&t=${Date.now()}`);
-  const data = await res.json();
-  const g = Math.round(data.global);
+  const res=await fetch(`${SCRIPT_URL}?lang=${lang}&weighted=${weighted}&t=${Date.now()}`);
+  const data=await res.json();
+  const g=Math.round(data.global);
 
   if(g!==previousGlobal){
     animateNumber(previousGlobal,g,v=>{
       const c=colorFromPercent(v);
-      circleEl.style.background = `conic-gradient(${c} ${v*3.6}deg, #1e293b 0deg)`;
-      globalValue.textContent = v;
+      circleEl.style.background=`conic-gradient(${c} ${v*3.6}deg, #1e293b 0deg)`;
+      globalValue.textContent=v;
     });
-    previousGlobal = g;
+    previousGlobal=g;
   }
 
   if(detailsOpened){
@@ -275,14 +268,14 @@ async function updateData(){
   }
 }
 
-/* TOGGLE DETAILS */
-circleEl.onclick = ()=>{ 
+/* DETAILS TOGGLE */
+circleEl.onclick=()=>{
   detailsOpened=!detailsOpened;
   detailsEl.style.display=detailsOpened?"block":"none";
   if(detailsOpened) updateData();
 };
 
-/* TOGGLE PONDERATION */
+/* PONDERATION TOGGLE */
 weightToggle.onclick=()=>{
   weighted=!weighted;
   weightToggle.classList.toggle("on");
@@ -290,8 +283,11 @@ weightToggle.onclick=()=>{
   localStorage.setItem("weighted",weighted);
   updateData();
 };
+let pressTimer;
+weightToggle.ontouchstart=()=>{pressTimer=setTimeout(()=>alert(lang==="fr"?"Pondérer":"Orekatu"),500);};
+weightToggle.ontouchend=()=>clearTimeout(pressTimer);
 
-/* LANGUE */
+/* LANGUES */
 ["fr","eu"].forEach(l=>{
   document.getElementById(l).onclick=()=>{
     if(l===lang) return;
@@ -307,26 +303,25 @@ weightToggle.onclick=()=>{
   };
 });
 
-/* AUDIO + LOGO */
+/* AUDIO / LOGO */
 let tapCount=0;
 logo.onclick=()=>{
   tapCount++;
   if(tapCount===1){
-    if(audio.paused) audio.play();
-    else audio.pause();
-    logo.classList.toggle("playing",!audio.paused);
+    audio.currentTime=0;
+    audio.play();
+    logo.classList.add("playing");
   }
   setTimeout(()=>tapCount=0,400);
 };
-logo.ondblclick = ()=>window.open(INSTA_WEB,"_blank");
-let pressTimer;
-logo.ontouchstart=()=>pressTimer=setTimeout(()=>window.open(INSTA_WEB,"_blank"),500);
-logo.ontouchend=()=>clearTimeout(pressTimer);
+audio.onended=()=>logo.classList.remove("playing");
+logo.ondblclick=()=>window.open(INSTA_WEB,"_blank");
+let pressTimerLogo;
+logo.ontouchstart=()=>pressTimerLogo=setTimeout(()=>window.open(INSTA_WEB,"_blank"),500);
+logo.ontouchend=()=>clearTimeout(pressTimerLogo);
 
-/* CITATIONS */
-fetch("data/quotes.json")
-.then(r=>r.json())
-.then(quotes=>{
+/* QUOTES */
+fetch("data/quotes.json").then(r=>r.json()).then(quotes=>{
   function changeQuote(){
     quoteEl.style.opacity=0;
     setTimeout(()=>{
@@ -338,9 +333,14 @@ fetch("data/quotes.json")
   setInterval(changeQuote,120000);
 });
 
+/* Cercle micro animation toutes les 20s */
+setInterval(()=>{
+  circleEl.style.transform="scale(1.05)";
+  setTimeout(()=>circleEl.style.transform="scale(1)",400);
+},20000);
+
 updateData();
 setInterval(updateData,30000);
 </script>
-
 </body>
 </html>
