@@ -48,6 +48,7 @@ body{
   cursor:pointer;
   opacity:0.5;
   object-fit:cover;
+  object-position:center;
   margin-right:4px;
   transition:opacity 0.3s;
 }
@@ -94,6 +95,9 @@ body{
   opacity:0;
   transition:opacity 0.3s;
   pointer-events:none;
+}
+.toggle:hover + .toggle-tooltip{
+  opacity:1; /* affichage hover desktop */
 }
 
 /* TITLE */
@@ -143,10 +147,8 @@ h1{
 
 /* DETAILS */
 .details{
-  position:absolute;
-  top:220px;
-  left:50%;
-  transform:translateX(-50%);
+  position:relative; /* correction pour ne pas superposer le cercle */
+  margin-top:16px;
   width:90%;
   text-align:left;
   display:none;
@@ -177,7 +179,7 @@ h1{
   font-style:italic;
   text-align:center;
   color:#9aa3b2;
-  margin-top:8px;
+  margin-top:20px; /* léger décalage */
   min-height:40px;
   transition:opacity 0.6s;
 }
@@ -352,7 +354,7 @@ fetch("data/quotes.json").then(r=>r.json()).then(quotes=>{
   setInterval(changeQuote,120000);
 });
 
-/* Cercle animation fluide (transition) toutes les 20s */
+/* Cercle animation fluide */
 setInterval(()=>{circleEl.style.background=circleEl.style.background;},20000);
 
 updateData();
