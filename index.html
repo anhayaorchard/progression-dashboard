@@ -202,6 +202,7 @@ h1{
   100%{transform:scale(1);}
 }
 </style>
+  <link rel="manifest" href="manifest.json">
 </head>
 
 <body>
@@ -264,6 +265,15 @@ toggleTooltip.textContent = lang==="fr"?"Pondérer":"Orekatu";
 function colorFromPercent(p){return `hsl(${p*1.2},80%,45%)`;}
 function animateNumber(from,to,cb){let v=from;function step(){if(v===to)return;v+=v<to?1:-1;cb(v);requestAnimationFrame(step);}step();}
 
+if ('serviceWorker' in navigator && 'Notification' in window) {
+  navigator.serviceWorker.register('sw.js').then(reg => console.log('SW registered'));
+  
+  if (Notification.permission !== 'granted') {
+    Notification.requestPermission();
+  }
+}
+
+  
 /* UPDATE DATA */
 async function updateData(){
   const res=await fetch(`${SCRIPT_URL}?lang=${lang}&weighted=${weighted}&t=${Date.now()}`);
@@ -295,6 +305,37 @@ async function updateData(){
   }
 }
 
+// Notification si progression globale a augmenté
+if(previousGlobal > 0 && g > previousGlobal){
+  if(Notification.permission === 'granted' && navigator.serviceWorker.controller){
+    navigator.serviceWorker.controller.postMessage({
+      type: 'NOTIFY',
+      title: 'Arraunean !',
+      options: {
+        body: `La progression globale a avancé à ${g}%`,
+        icon: 'assets/logo/logo-192.png'
+      }
+    });
+  }
+}
+
+// Notification si nouvel extrait audio disponible
+// Assure-toi que ton JSON Apps Script renvoie un champ "audioVersion"
+if(data.audioVersion && data.audioVersion !== localStorage.getItem('lastAudioVersion')){
+  if(Notification.permission === 'granted' && navigator.serviceWorker.controller){
+    navigator.serviceWorker.controller.postMessage({
+      type: 'NOTIFY',
+      title: 'Arraunean !',
+      options: {
+        body: 'Un nouvel extrait audio est disponible !',
+        icon: 'assets/logo/logo-192.png'
+      }
+    });
+  }
+  localStorage.setItem('lastAudioVersion', data.audioVersion);
+}
+
+  
 /* DETAILS TOGGLE */
 circleEl.onclick=()=>{
   detailsOpened=!detailsOpened;
